@@ -1,4 +1,4 @@
-import { Download, ExternalLink, Keyboard, Timer, Video, Monitor, Moon, Sun } from "lucide-react";
+import { Download, ExternalLink, Heart, Keyboard, Timer, Video, Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
@@ -178,19 +178,15 @@ const Index = () => {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-slate-500/70 bg-gradient-to-b from-slate-500 via-slate-600 to-slate-700 py-10 text-center text-sm text-slate-100 dark:border-border dark:bg-gradient-to-b dark:from-muted/20 dark:via-muted/45 dark:to-muted/70 dark:text-muted-foreground">
-        <p className="text-lg mb-2">❤️ Open Source</p>
-        <p>
-          A{" "}
-          <a
-            href="https://trinixlabs.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            TrinixLabs
-          </a>{" "}
-          project
+      <footer className="relative z-10 border-t border-slate-500/70 bg-gradient-to-b from-slate-100 via-slate-200 to-slate-300 py-10 text-center text-sm text-slate-100 dark:border-border dark:bg-gradient-to-b dark:from-muted/20 dark:via-muted/45 dark:to-muted/70 dark:text-muted-foreground">
+        <p className="font-mono text-xs text-muted-foreground tracking-wider flex items-center justify-center gap-2">
+          <Heart className="w-4 h-4 text-destructive" />
+          <span>Open Source</span>
+          <span>| A</span>
+          <a href="https://trinixlabs.dev" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            <span className="text-primary/70">TrinixLabs</span>
+          </a>
+          <span>Project</span>
         </p>
       </footer>
     </div>
