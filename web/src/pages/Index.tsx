@@ -88,6 +88,16 @@ const Index = () => {
           Instant typing from your clipboard
         </p>
 
+        {/* Demo GIF */}
+        <div className="mt-14 w-full max-w-2xl overflow-hidden rounded-xl border border-border shadow-2xl shadow-primary/10">
+          <img
+            src={DEMO_URL}
+            alt="TypePaste demo showing typing simulation"
+            className="w-full"
+            loading="lazy"
+          />
+        </div>
+
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Button asChild size="lg" className="gap-2 font-semibold">
             <a href={DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
@@ -100,31 +110,22 @@ const Index = () => {
             </a>
           </Button>
         </div>
-
-        {/* Demo GIF */}
-        <div className="mt-14 w-full max-w-2xl overflow-hidden rounded-xl border border-border shadow-2xl shadow-primary/10">
-          <img
-            src={DEMO_URL}
-            alt="TypePaste demo showing typing simulation"
-            className="w-full"
-            loading="lazy"
-          />
-        </div>
       </header>
 
       {/* ── Why TypePaste ── */}
       <section className="relative z-10 mx-auto max-w-3xl px-6 py-16 text-center">
+        <img
+          src={LOGO_URL}
+          alt="TypePaste logo"
+          width={48}
+          height={48}
+          className="mx-auto mb-5 rounded-xl shadow-md shadow-primary/15"
+        />
         <h2 className="text-3xl font-bold tracking-tight mb-6">Why TypePaste?</h2>
         <p className="text-muted-foreground leading-relaxed text-lg">
-          Some apps and websites block pasting — login forms, terminals, code editors during demos, or
-          virtual machines. <span className="text-foreground font-medium">TypePaste solves this</span> by
-          simulating real keystrokes from your clipboard, character by character, so every field accepts
-          your input as if you typed it by hand.
-        </p>
-        <p className="mt-4 text-muted-foreground leading-relaxed">
-          Perfect for <span className="text-primary font-mono text-sm">screen recordings</span>,{" "}
-          <span className="text-primary font-mono text-sm">live demos</span>, and anywhere paste is
-          disabled or unreliable.
+          TypePaste is a lightweight macOS menu-bar app that reads the current clipboard text and types it
+          into the active app as if you were typing. It is built for product demos and screen recordings
+          where you want a natural, human-like typing effect without manually retyping content.
         </p>
       </section>
 
@@ -177,7 +178,7 @@ const Index = () => {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-border py-10 text-center text-sm text-muted-foreground">
+      <footer className="relative z-10 border-t border-slate-500/70 bg-gradient-to-b from-slate-500 via-slate-600 to-slate-700 py-10 text-center text-sm text-slate-100 dark:border-border dark:bg-gradient-to-b dark:from-muted/20 dark:via-muted/45 dark:to-muted/70 dark:text-muted-foreground">
         <p className="text-lg mb-2">❤️ Open Source</p>
         <p>
           A{" "}
