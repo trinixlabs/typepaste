@@ -47,6 +47,8 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            MARKETING_VERSION="${VERSION}" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
             clean build
 
           APP_PATH="$DERIVED_DATA/Build/Products/Release/${SCHEME}.app"
