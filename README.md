@@ -47,7 +47,10 @@ brew install --cask typepaste
 3. On first launch (unsigned app): right-click `TypePaste.app` -> `Open` -> `Open`.
 
 **If macOS says the app is "broken" or should be moved to Bin**
+
 This can happen with unsigned builds blocked by Gatekeeper quarantine.
+
+Run the following step in your terminal, which will allow the usage of TypePaste.app in a safe way.
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/TypePaste.app
