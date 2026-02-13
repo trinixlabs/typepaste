@@ -9,6 +9,7 @@ import AppKit
 import ApplicationServices
 import Carbon
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
     private let clipboardTyper = ClipboardTyper()
@@ -17,11 +18,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private weak var typeClipboardMenuItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        requestAccessibilityPermission()
-        NSApp.setActivationPolicy(.accessory)
-        setUpStatusItem()
-        setUpHotKey()
-        observeHotKeyChanges()
+        // Keep launch minimal and perform setup on the next main-loop turn.
+        // This avoids first-launch timing issues while macOS is presenting trust prompts.
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.requestAccessibilityPermission()
+            NSApp.setActivationPolicy(.accessory)
+            self.setUpStatusItem()
+            self.setUpHotKey()
+            self.observeHotKeyChanges()
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -88,13 +94,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func requestAccessibilityPermission() {
+        guard !AXIsProcessTrusted() else { return }
         let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
         let options: NSDictionary = [promptKey: true]
         _ = AXIsProcessTrustedWithOptions(options)
     }
 
     @objc private func typeClipboard() {
-        clipboardTyper.typeClipboardContents()
+        DispatchQueue.main.async { [weak self] in
+            self?.clipboardTyper.typeClipboardContents()
+        }
     }
 
     @objc private func openSettings() {
