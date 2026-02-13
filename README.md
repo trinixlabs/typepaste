@@ -34,11 +34,20 @@ TypePaste is a lightweight macOS menu-bar app that reads the current clipboard t
 2. Select the `TypePaste` scheme.
 3. Use `Product > Build` or `Product > Archive` to create a build.
 
-**Install (Unsigned Release)**
-1. Download the `.zip` from GitHub Releases.
-2. Unzip it to get `TypePaste.app`.
-3. Drag it to `/Applications`.
-4. On first launch: right-click `TypePaste.app` → `Open` → `Open`.
+**Install from DMG (GitHub Releases)**
+1. Download the latest `.dmg` from [Releases](https://github.com/trinixlabs/TypePaste/releases).
+2. Open the DMG and drag `TypePaste.app` to `Applications`.
+3. Launch TypePaste from `Applications`.
+4. On first launch (unsigned app): right-click `TypePaste.app` -> `Open` -> `Open`.
+
+**Install with Homebrew**
+1. Run:
+```bash
+brew tap trinixlabs/tap
+brew install --cask typepaste
+```
+2. Launch TypePaste from `Applications`.
+3. On first launch (unsigned app): right-click `TypePaste.app` -> `Open` -> `Open`.
 
 **Build App**
 1. Open `TypePaste.xcodeproj` in Xcode.

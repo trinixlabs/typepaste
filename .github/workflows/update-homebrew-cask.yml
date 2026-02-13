@@ -1,0 +1,100 @@
+name: Update Homebrew Cask (Tap)
+
+on:
+  workflow_run:
+    workflows: ["Build macOS DMG + Release"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  update-cask:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'release' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download release metadata artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: .
+
+      - name: Determine version from release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          META_FILE="$(find . -maxdepth 3 -name release-metadata.env | head -n1)"
+          if [ -z "$META_FILE" ]; then
+            echo "release-metadata.env not found"
+            exit 1
+          fi
+          source "$META_FILE"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Using VERSION=$VERSION (from TAG=$TAG)"
+
+      - name: Download DMG from the release
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+
+          gh release download "$TAG" \
+            --repo "${{ github.repository }}" \
+            --pattern "TypePaste-${VERSION}.dmg" \
+            --dir dist
+
+          ls -la dist
+
+      - name: Compute SHA256
+        shell: bash
+        run: |
+          set -euo pipefail
+          DMG="dist/TypePaste-${VERSION}.dmg"
+          SHA="$(sha256sum "$DMG" | awk '{print $1}')"
+          echo "DMG_SHA256=$SHA" >> "$GITHUB_ENV"
+          echo "SHA256=$SHA"
+
+      - name: Checkout shared Homebrew tap repo
+        uses: actions/checkout@v4
+        with:
+          repository: trinixlabs/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update typepaste cask in shared tap
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CASK_FILE="homebrew-tap/Casks/typepaste.rb"
+          if [ ! -f "$CASK_FILE" ]; then
+            echo "Cask file not found at $CASK_FILE"
+            exit 1
+          fi
+
+          # Update version + sha256 lines (expects 2-space indentation)
+          sed -i -E "s/^  version \".*\"/  version \"${VERSION}\"/" "$CASK_FILE"
+          sed -i -E "s/^  sha256 \".*\"/  sha256 \"${DMG_SHA256}\"/" "$CASK_FILE"
+
+          echo "Updated cask:"
+          cat "$CASK_FILE"
+
+      - name: Create PR in shared tap repo
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+          branch: "cask-typepaste-${{ env.VERSION }}"
+          commit-message: "typepaste: update to ${{ env.VERSION }}"
+          title: "typepaste: update to ${{ env.VERSION }}"
+          body: |
+            Automated update of TypePaste cask to ${{ env.VERSION }}.
+            SHA256: ${{ env.DMG_SHA256 }}
+          delete-branch: true

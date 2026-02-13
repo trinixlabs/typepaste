@@ -1,0 +1,106 @@
+name: Build macOS DMG + Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set version from tag
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"  # supports v1.2.3 and 1.2.3
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Build (Release)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PROJECT="TypePaste/TypePaste.xcodeproj"
+          SCHEME="TypePaste"
+          DERIVED_DATA="$PWD/build/DerivedData"
+
+          xcodebuild \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -derivedDataPath "$DERIVED_DATA" \
+            clean build
+
+          APP_PATH="$DERIVED_DATA/Build/Products/Release/${SCHEME}.app"
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Expected app not found at: $APP_PATH"
+            echo "Listing products folder:"
+            ls -la "$DERIVED_DATA/Build/Products/Release" || true
+            exit 1
+          fi
+
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
+
+      - name: Create ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+
+          ZIP_NAME="TypePaste-${VERSION}.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "dist/$ZIP_NAME"
+
+          echo "ZIP_PATH=dist/$ZIP_NAME" >> "$GITHUB_ENV"
+
+      - name: Create DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          STAGING="build/dmg-stage"
+          rm -rf "$STAGING"
+          mkdir -p "$STAGING"
+
+          cp -R "$APP_PATH" "$STAGING/TypePaste.app"
+          ln -s /Applications "$STAGING/Applications"
+
+          DMG_NAME="TypePaste-${VERSION}.dmg"
+          hdiutil create \
+            -volname "TypePaste ${VERSION}" \
+            -srcfolder "$STAGING" \
+            -ov -format UDZO \
+            "dist/$DMG_NAME"
+
+          echo "DMG_PATH=dist/$DMG_NAME" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release + upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          files: |
+            ${{ env.ZIP_PATH }}
+            ${{ env.DMG_PATH }}
+
+      - name: Export release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-metadata.env <<EOF
+          TAG=${TAG}
+          VERSION=${VERSION}
+          EOF
+
+      - name: Upload release metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: release-metadata.env
