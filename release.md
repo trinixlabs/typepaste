@@ -122,13 +122,20 @@ Important details:
 
 ### Signing implications
 
-The CI build disables code signing:
+The CI build still disables Xcode-managed signing:
 
 - `CODE_SIGNING_ALLOWED=NO`
 - `CODE_SIGNING_REQUIRED=NO`
 - `CODE_SIGN_IDENTITY=""`
 
-So the app inside both the ZIP and DMG is an unsigned build artifact. This is consistent with the current README instructions that tell users to open the app manually or remove quarantine attributes if Gatekeeper blocks it.
+After the build, the workflow ad-hoc signs the app bundle with:
+
+```bash
+codesign --force --deep --sign - "$APP_PATH"
+codesign --verify --deep --strict "$APP_PATH"
+```
+
+That gives the ZIP and DMG a valid ad-hoc signature, which reduces Gatekeeper's "damaged" false positives, but it is still not a notarized distribution build.
 
 ## How Homebrew Works In This Setup
 
@@ -196,10 +203,10 @@ If you want to reuse this release model for `pulse`, these are the parts to copy
 
 ### Unsigned release artifacts
 
-The current flow intentionally publishes unsigned app builds. That is workable, but it means:
+The current flow publishes ad-hoc signed app builds, not notarized distribution builds. That is workable, but it means:
 
 - users can hit Gatekeeper friction
-- Homebrew install is not equivalent to a signed/notarized Mac distribution
+- Homebrew install is not equivalent to a fully signed/notarized Mac distribution
 - the README needs to keep the current manual-open and quarantine-removal guidance
 
 ### Release trigger timing

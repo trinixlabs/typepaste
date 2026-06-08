@@ -60,6 +60,10 @@ jobs:
             exit 1
           fi
 
+          # Ad-hoc sign the built app so Gatekeeper sees a valid code signature.
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict "$APP_PATH"
+
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
       - name: Create ZIP
