@@ -2,6 +2,15 @@ name: TypePaste Tests
 
 on:
   pull_request:
+    paths:
+      - ".github/workflows/tests.yml"
+      - "TypePaste/**/*.swift"
+      - "TypePaste/**/*.plist"
+      - "TypePaste/**/*.entitlements"
+      - "TypePaste/**/*.xcassets/**"
+      - "TypePaste/**/*.xcodeproj/**"
+      - "TypePaste/**/*.xcworkspace/**"
+      - "TypePaste/Package.swift"
 
 jobs:
   xcode-unit-tests:
