@@ -47,6 +47,10 @@ final class ClipboardTyper {
             return
         }
 
+        typeText(rawText)
+    }
+
+    func typeText(_ rawText: String) {
         let text = rawText.trimmingCharacters(in: .newlines)
         guard !text.isEmpty else {
             beeper.beep()
@@ -58,6 +62,8 @@ final class ClipboardTyper {
         }
     }
 }
+
+extension ClipboardTyper: TypingActionHandling {}
 
 extension NSPasteboard: PasteboardReading {}
 
