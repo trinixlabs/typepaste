@@ -4,7 +4,9 @@
 
 TypePaste is a lightweight macOS menu-bar app that reads the current clipboard text and types it into the active app as if you were typing. It is built for product demos and screen recordings where you want a natural, human-like typing effect without manually retyping content.
 
-![macOS](https://img.shields.io/badge/platform-macOS-lightgrey) 
+![macOS](https://img.shields.io/badge/platform-macOS-lightgrey)
+![Latest Release](https://img.shields.io/github/v/release/trinixlabs/TypePaste?label=Latest%20Release)
+![Total Downloads](https://img.shields.io/github/downloads/trinixlabs/TypePaste/total?label=Total%20Downloads)
 
 ## Screenshots
 
@@ -77,4 +79,3 @@ open /Applications/TypePaste.app
 4. In Organizer: `Distribute App` → `Custom` → `Copy App`.
 5. Choose “Do not sign” and export the `.app`.
 6. Compress the `.app` into a `.zip` for distribution.
-

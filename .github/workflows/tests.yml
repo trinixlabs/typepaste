@@ -1,0 +1,27 @@
+name: TypePaste Tests
+
+on:
+  pull_request:
+
+jobs:
+  xcode-unit-tests:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Run unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          xcodebuild test \
+            -project TypePaste/TypePaste.xcodeproj \
+            -scheme TypePaste \
+            -destination 'platform=macOS' \
+            -derivedDataPath build/DerivedData \
+            -only-testing:TypePasteTests

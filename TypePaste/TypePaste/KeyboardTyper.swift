@@ -36,3 +36,5 @@ final class KeyboardTyper {
         }
     }
 }
+
+extension KeyboardTyper: KeyboardTyping {}
