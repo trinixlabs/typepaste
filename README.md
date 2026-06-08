@@ -48,18 +48,34 @@ brew install --cask typepaste
 2. Launch TypePaste from `Applications`.
 3. On first launch (unsigned app): right-click `TypePaste.app` -> `Open` -> `Open`.
 
-**If macOS says the app is "broken" or should be moved to Bin**
+### First Launch on macOS
 
-This can happen with unsigned builds blocked by Gatekeeper quarantine.
+TypePaste is an open-source project and release builds are distributed unsigned.
+On first launch, macOS may show:
+
+- `"TypePaste" cannot be opened because Apple cannot check it for malicious software.`
+- `"TypePaste" is damaged and can't be opened. You should move it to the Bin.`
+
+To run it anyway:
+
+1. In Finder, right-click `TypePaste.app` and choose `Open`.
+2. Click `Open` again in the warning dialog.
 
 If Finder still blocks it, use:
 
 - `System Settings -> Privacy & Security` and click `Open Anyway` for TypePaste.
 
-Run the following step in your terminal, which will allow the usage of TypePaste.app in a safe way.
+Alternative Terminal path:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/TypePaste.app
+open /Applications/TypePaste.app
+```
+
+If needed, remove all extended attributes and try again:
+
+```bash
+xattr -cr /Applications/TypePaste.app
 open /Applications/TypePaste.app
 ```
 
