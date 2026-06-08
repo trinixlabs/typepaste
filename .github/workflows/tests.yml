@@ -24,4 +24,8 @@ jobs:
             -scheme TypePaste \
             -destination 'platform=macOS' \
             -derivedDataPath build/DerivedData \
-            -only-testing:TypePasteTests
+            -only-testing:TypePasteTests \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
