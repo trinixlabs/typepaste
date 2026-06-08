@@ -12,6 +12,13 @@ struct TypePasteApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
+        MenuBarExtra {
+            TypePasteMenuBarView(appDelegate: appDelegate)
+        } label: {
+            Image(systemName: "number.square")
+        }
+        .menuBarExtraStyle(.window)
+
         Settings {
             ContentView()
         }

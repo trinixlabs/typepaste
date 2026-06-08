@@ -11,11 +11,15 @@ import Carbon
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var statusItem: NSStatusItem?
-    private let clipboardTyper = ClipboardTyper()
+    private let typingActionHandler: TypingActionHandling
+    private lazy var actionPerformer = TypePasteActionPerformer(typingActionHandler: typingActionHandler)
     private var hotKeyManager: HotKeyManager?
     private var hotKeyObserver: NSObjectProtocol?
-    private weak var typeClipboardMenuItem: NSMenuItem?
+
+    override init() {
+        self.typingActionHandler = ClipboardTyper()
+        super.init()
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Keep launch minimal and perform setup on the next main-loop turn.
@@ -24,7 +28,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self else { return }
             self.requestAccessibilityPermission()
             NSApp.setActivationPolicy(.accessory)
-            self.setUpStatusItem()
             self.setUpHotKey()
             self.observeHotKeyChanges()
         }
@@ -33,34 +36,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         hotKeyManager = nil
         hotKeyObserver = nil
-    }
-
-    private func setUpStatusItem() {
-        let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "keyboard", accessibilityDescription: "TypePaste")
-
-        let menu = NSMenu()
-        let typeItem = NSMenuItem(
-            title: "Type Clipboard (\(HotKeySettings.displayString(keyCode: HotKeySettings.keyCode, modifiers: HotKeySettings.modifiers)))",
-            action: #selector(typeClipboard),
-            keyEquivalent: ""
-        )
-        menu.addItem(typeItem)
-        menu.addItem(.separator())
-        menu.addItem(NSMenuItem(
-            title: "Settings…",
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        ))
-        menu.addItem(NSMenuItem(
-            title: "Quit TypePaste",
-            action: #selector(quitApp),
-            keyEquivalent: "q"
-        ))
-        statusItem.menu = menu
-
-        self.statusItem = statusItem
-        self.typeClipboardMenuItem = typeItem
     }
 
     private func setUpHotKey() {
@@ -73,24 +48,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.updateHotKeyFromSettings()
+            Task { @MainActor [weak self] in
+                self?.updateHotKeyFromSettings()
+            }
         }
     }
 
     private func updateHotKeyFromSettings() {
-        let keyCode = Int(HotKeySettings.keyCode)
-        let modifiers = HotKeySettings.modifiers
+        let registrations = currentHotKeyRegistrations()
 
         if let hotKeyManager {
-            hotKeyManager.update(keyCode: keyCode, modifiers: modifiers)
+            hotKeyManager.update(registrations: registrations)
         } else {
-            hotKeyManager = HotKeyManager(keyCode: keyCode, modifiers: modifiers)
-            hotKeyManager?.onHotKeyPressed = { [weak self] in
-                self?.typeClipboard()
+            hotKeyManager = HotKeyManager(registrations: registrations)
+            hotKeyManager?.onHotKeyPressed = { [weak self] id in
+                self?.performAction(withID: id)
             }
         }
+    }
 
-        typeClipboardMenuItem?.title = "Type Clipboard (\(HotKeySettings.displayString(keyCode: UInt32(keyCode), modifiers: modifiers)))"
+    private func currentHotKeyRegistrations() -> [HotKeyRegistration] {
+        let clipboardRegistration = HotKeyRegistration(
+            id: HotKeyAction.clipboard.id,
+            keyCode: Int(HotKeySettings.keyCode),
+            modifiers: HotKeySettings.modifiers
+        )
+
+        let snippetRegistrations = SnippetHotKeyMapping.assignments(
+            snippets: currentSnippets(),
+            baseModifiers: HotKeySettings.modifiers
+        ).map { assignment in
+            HotKeyRegistration(
+                id: HotKeyAction.snippet(slot: assignment.slot).id,
+                keyCode: assignment.keyCode,
+                modifiers: assignment.modifiers
+            )
+        }
+
+        return [clipboardRegistration] + snippetRegistrations
+    }
+
+    private func currentSnippets() -> [Snippet] {
+        SnippetLibrarySettings.load()
     }
 
     private func requestAccessibilityPermission() {
@@ -100,18 +99,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         _ = AXIsProcessTrustedWithOptions(options)
     }
 
-    @objc private func typeClipboard() {
+    func typeClipboardFromMenuBar() {
+        performAction(.clipboard)
+    }
+
+    func typeSnippetFromMenuBar(slot: Int) {
+        performAction(.snippet(slot: slot))
+    }
+
+    private func performAction(withID id: UInt32) {
+        guard let action = HotKeyAction(id: id) else { return }
+        performAction(action)
+    }
+
+    private func performAction(_ action: HotKeyAction) {
         DispatchQueue.main.async { [weak self] in
-            self?.clipboardTyper.typeClipboardContents()
+            guard let self else { return }
+            self.actionPerformer.perform(action, snippets: self.currentSnippets())
         }
     }
 
-    @objc private func openSettings() {
-        // Use string selector to avoid compile issues on older SDKs.
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-    }
-
-    @objc private func quitApp() {
+    func quitFromMenuBar() {
         NSApp.terminate(nil)
     }
 }

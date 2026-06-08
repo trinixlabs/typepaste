@@ -9,36 +9,26 @@ import Carbon
 import Foundation
 
 final class HotKeyManager {
-    var onHotKeyPressed: (() -> Void)?
+    var onHotKeyPressed: ((UInt32) -> Void)?
 
-    private var hotKeyRef: EventHotKeyRef?
+    private var hotKeyRefs: [UInt32: EventHotKeyRef] = [:]
     private var handlerRef: EventHandlerRef?
 
-    init(keyCode: Int, modifiers: UInt32) {
-        registerHotKey(keyCode: keyCode, modifiers: modifiers)
+    init(registrations: [HotKeyRegistration]) {
+        registerHotKeys(registrations)
     }
 
     deinit {
         unregisterHotKey()
     }
 
-    func update(keyCode: Int, modifiers: UInt32) {
+    func update(registrations: [HotKeyRegistration]) {
         unregisterHotKey()
-        registerHotKey(keyCode: keyCode, modifiers: modifiers)
+        registerHotKeys(registrations)
     }
 
-    private func registerHotKey(keyCode: Int, modifiers: UInt32) {
-        var hotKeyID = EventHotKeyID(signature: "TPST".fourCharCode, id: 1)
-
-        let status = RegisterEventHotKey(
-            UInt32(keyCode),
-            modifiers,
-            hotKeyID,
-            GetEventDispatcherTarget(),
-            0,
-            &hotKeyRef
-        )
-        guard status == noErr else { return }
+    private func registerHotKeys(_ registrations: [HotKeyRegistration]) {
+        unregisterHotKey()
 
         var eventType = EventTypeSpec(
             eventClass: OSType(kEventClassKeyboard),
@@ -53,29 +43,66 @@ final class HotKeyManager {
             UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
             &handlerRef
         )
+
+        for registration in registrations {
+            var hotKeyRef: EventHotKeyRef?
+            let hotKeyID = EventHotKeyID(signature: "TPST".fourCharCode, id: registration.id)
+            let status = RegisterEventHotKey(
+                UInt32(registration.keyCode),
+                registration.modifiers,
+                hotKeyID,
+                GetEventDispatcherTarget(),
+                0,
+                &hotKeyRef
+            )
+
+            guard status == noErr, let hotKeyRef else { continue }
+            hotKeyRefs[registration.id] = hotKeyRef
+        }
     }
 
     private func unregisterHotKey() {
-        if let hotKeyRef {
+        for hotKeyRef in hotKeyRefs.values {
             UnregisterEventHotKey(hotKeyRef)
-            self.hotKeyRef = nil
         }
+        hotKeyRefs.removeAll()
+
         if let handlerRef {
             RemoveEventHandler(handlerRef)
             self.handlerRef = nil
         }
     }
 
-    private func handleHotKeyPressed() {
-        onHotKeyPressed?()
+    private func handleHotKeyPressed(id: UInt32) {
+        onHotKeyPressed?(id)
     }
 
-    private static let hotKeyHandler: EventHandlerUPP = { _, _, userData in
+    private static let hotKeyHandler: EventHandlerUPP = { _, eventRef, userData in
         guard let userData else { return noErr }
+        guard let eventRef else { return noErr }
+
+        var hotKeyID = EventHotKeyID()
+        let status = GetEventParameter(
+            eventRef,
+            EventParamName(kEventParamDirectObject),
+            EventParamType(typeEventHotKeyID),
+            nil,
+            MemoryLayout<EventHotKeyID>.size,
+            nil,
+            &hotKeyID
+        )
+        guard status == noErr else { return noErr }
+
         let manager = Unmanaged<HotKeyManager>.fromOpaque(userData).takeUnretainedValue()
-        manager.handleHotKeyPressed()
+        manager.handleHotKeyPressed(id: hotKeyID.id)
         return noErr
     }
+}
+
+struct HotKeyRegistration: Equatable {
+    let id: UInt32
+    let keyCode: Int
+    let modifiers: UInt32
 }
 
 private extension String {

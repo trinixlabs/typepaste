@@ -4,7 +4,9 @@
 
 TypePaste is a lightweight macOS menu-bar app that reads the current clipboard text and types it into the active app as if you were typing. It is built for product demos and screen recordings where you want a natural, human-like typing effect without manually retyping content.
 
-![macOS](https://img.shields.io/badge/platform-macOS-lightgrey) 
+![macOS](https://img.shields.io/badge/platform-macOS-lightgrey)
+![Latest Release](https://img.shields.io/github/v/release/trinixlabs/TypePaste?label=Latest%20Release)
+![Total Downloads](https://img.shields.io/github/downloads/trinixlabs/TypePaste/total?label=Total%20Downloads)
 
 ## Screenshots
 
@@ -46,14 +48,34 @@ brew install --cask typepaste
 2. Launch TypePaste from `Applications`.
 3. On first launch (unsigned app): right-click `TypePaste.app` -> `Open` -> `Open`.
 
-**If macOS says the app is "broken" or should be moved to Bin**
+### First Launch on macOS
 
-This can happen with unsigned builds blocked by Gatekeeper quarantine.
+TypePaste is an open-source project and release builds are distributed unsigned.
+On first launch, macOS may show:
 
-Run the following step in your terminal, which will allow the usage of TypePaste.app in a safe way.
+- `"TypePaste" cannot be opened because Apple cannot check it for malicious software.`
+- `"TypePaste" is damaged and can't be opened. You should move it to the Bin.`
+
+To run it anyway:
+
+1. In Finder, right-click `TypePaste.app` and choose `Open`.
+2. Click `Open` again in the warning dialog.
+
+If Finder still blocks it, use:
+
+- `System Settings -> Privacy & Security` and click `Open Anyway` for TypePaste.
+
+Alternative Terminal path:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/TypePaste.app
+open /Applications/TypePaste.app
+```
+
+If needed, remove all extended attributes and try again:
+
+```bash
+xattr -cr /Applications/TypePaste.app
 open /Applications/TypePaste.app
 ```
 
@@ -77,4 +99,3 @@ open /Applications/TypePaste.app
 4. In Organizer: `Distribute App` → `Custom` → `Copy App`.
 5. Choose “Do not sign” and export the `.app`.
 6. Compress the `.app` into a `.zip` for distribution.
-

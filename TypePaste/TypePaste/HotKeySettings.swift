@@ -64,15 +64,39 @@ struct HotKeySettings {
 
     static func sanitizeModifiers(_ value: UInt32) -> UInt32 {
         let withCommand = value | UInt32(cmdKey)
-        return withCommand
+        return withCommand & ~UInt32(shiftKey)
+    }
+
+    static func snippetModifiers(baseModifiers: UInt32) -> UInt32 {
+        sanitizeModifiers(baseModifiers) | UInt32(shiftKey)
+    }
+
+    static func snippetKeyCode(for slot: Int) -> Int? {
+        switch slot {
+        case 1: return kVK_ANSI_1
+        case 2: return kVK_ANSI_2
+        case 3: return kVK_ANSI_3
+        case 4: return kVK_ANSI_4
+        case 5: return kVK_ANSI_5
+        case 6: return kVK_ANSI_6
+        case 7: return kVK_ANSI_7
+        case 8: return kVK_ANSI_8
+        case 9: return kVK_ANSI_9
+        default: return nil
+        }
+    }
+
+    static func snippetDisplayString(slot: Int, baseModifiers: UInt32) -> String {
+        guard let keyCode = snippetKeyCode(for: slot) else { return "" }
+        return displayString(keyCode: UInt32(keyCode), modifiers: snippetModifiers(baseModifiers: baseModifiers))
     }
 
     static func displayString(keyCode: UInt32, modifiers: UInt32) -> String {
         var parts: [String] = []
-        if (modifiers & UInt32(cmdKey)) != 0 { parts.append("⌘") }
-        if (modifiers & UInt32(optionKey)) != 0 { parts.append("⌥") }
         if (modifiers & UInt32(controlKey)) != 0 { parts.append("⌃") }
+        if (modifiers & UInt32(optionKey)) != 0 { parts.append("⌥") }
         if (modifiers & UInt32(shiftKey)) != 0 { parts.append("⇧") }
+        if (modifiers & UInt32(cmdKey)) != 0 { parts.append("⌘") }
 
         let keyName = availableKeys.first(where: { UInt32($0.keyCode) == keyCode })?.name ?? "?"
         parts.append(keyName)
