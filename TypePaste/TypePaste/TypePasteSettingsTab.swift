@@ -27,7 +27,7 @@ enum TypePasteSettingsTab: String, CaseIterable, Identifiable {
     var preferredWindowSize: NSSize {
         switch self {
         case .general:
-            return NSSize(width: 720, height: 520)
+            return NSSize(width: 720, height: 620)
         case .snippets:
             return NSSize(width: 840, height: 680)
         }
