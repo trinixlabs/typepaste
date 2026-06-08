@@ -52,6 +52,10 @@ brew install --cask typepaste
 
 This can happen with unsigned builds blocked by Gatekeeper quarantine.
 
+If Finder still blocks it, use:
+
+- `System Settings -> Privacy & Security` and click `Open Anyway` for TypePaste.
+
 Run the following step in your terminal, which will allow the usage of TypePaste.app in a safe way.
 
 ```bash
