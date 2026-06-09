@@ -5,6 +5,7 @@
 //  Created by Codex on 08/06/2026.
 //
 
+import AppKit
 import SwiftUI
 
 struct TypePasteMenuSnippetRow: Identifiable, Equatable {
@@ -88,7 +89,10 @@ struct TypePasteMenuBarView: View {
                 .padding(.vertical, 6)
 
             Button {
-                openSettings()
+                if !SettingsWindowPositioner.bringExistingSettingsWindowToFront() {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openSettings()
+                }
             } label: {
                 menuRow(title: "Settings…", shortcutHint: nil)
             }

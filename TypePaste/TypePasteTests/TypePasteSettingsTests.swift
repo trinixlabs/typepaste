@@ -38,4 +38,20 @@ struct TypePasteSettingsTests {
         #expect(ContentView.shouldAnimateResize(for: .snippets) == false)
         #expect(ContentView.shouldAnimateResize(for: .about) == false)
     }
+
+    @Test
+    func generalSettingsLayoutUsesSharedCenteredColumnWidth() {
+        #expect(ContentView.settingsColumnWidth == 520)
+    }
+
+    @Test
+    func existingSettingsWindowMatchesRegisteredIdentifier() {
+        let otherWindow = NSWindow()
+        let settingsWindow = NSWindow()
+        settingsWindow.identifier = SettingsWindowPositioner.settingsWindowIdentifier
+
+        #expect(
+            SettingsWindowPositioner.existingSettingsWindow(from: [otherWindow, settingsWindow]) === settingsWindow
+        )
+    }
 }

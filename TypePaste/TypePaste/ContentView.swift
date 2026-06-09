@@ -12,6 +12,7 @@ import SwiftUI
 
 struct ContentView: View {
     private static let githubRepositoryURL = URL(string: "https://github.com/trinixlabs/TypePaste")!
+    static let settingsColumnWidth: CGFloat = 520
 
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.trinix.TypePaste",
@@ -94,11 +95,11 @@ struct ContentView: View {
                                 .font(.system(size: 13))
                         }
                     }
-                    .frame(width: 120, height: 68)
                     .foregroundStyle(selectedTab == tab ? Color.accentColor : Color.primary)
                 }
+                .frame(width: 120, height: 68)
                 .buttonStyle(.plain)
-                .contentShape(RoundedRectangle(cornerRadius: 10))
+                .contentShape(Rectangle())
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -122,6 +123,8 @@ struct ContentView: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            .frame(width: Self.settingsColumnWidth, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top, 6)
 
             Divider()
@@ -375,7 +378,8 @@ struct ContentView: View {
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
             .font(.headline)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(width: Self.settingsColumnWidth, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 
     @ViewBuilder
@@ -387,7 +391,7 @@ struct ContentView: View {
             content()
                 .frame(width: 340, alignment: .leading)
         }
-        .frame(width: 520, alignment: .leading)
+        .frame(width: Self.settingsColumnWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .center)
     }
 
@@ -411,7 +415,7 @@ struct ContentView: View {
                 .toggleStyle(.checkbox)
                 .frame(width: 340, alignment: .leading)
         }
-        .frame(width: 520, alignment: .leading)
+        .frame(width: Self.settingsColumnWidth, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .center)
     }
 

@@ -6,6 +6,7 @@ import SwiftUI
 
 enum SettingsWindowPositioner {
     static let upwardOffset: CGFloat = 72
+    static let settingsWindowIdentifier = NSUserInterfaceItemIdentifier("TypePasteSettingsWindow")
     private static var initialPlacementAppliedAssociationKey: UInt8 = 0
     static let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.trinix.TypePaste",
@@ -124,6 +125,25 @@ enum SettingsWindowPositioner {
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC
         )
         logger.info("Marking initial settings placement for window number=\(window.windowNumber)")
+        return true
+    }
+
+    static func existingSettingsWindow(from windows: [NSWindow] = NSApp.windows) -> NSWindow? {
+        windows.first { $0.identifier == settingsWindowIdentifier }
+    }
+
+    @discardableResult
+    static func bringExistingSettingsWindowToFront() -> Bool {
+        guard let window = existingSettingsWindow() else {
+            return false
+        }
+
+        if window.isMiniaturized {
+            window.deminiaturize(nil)
+        }
+
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
         return true
     }
 
@@ -289,6 +309,7 @@ struct SettingsWindowAccessor: NSViewRepresentable {
         }
 
         func connect(to window: NSWindow) {
+            window.identifier = SettingsWindowPositioner.settingsWindowIdentifier
             installResizeObserverIfNeeded(on: window)
             onWindowResolved?(window)
 
