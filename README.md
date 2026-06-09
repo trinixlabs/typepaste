@@ -2,7 +2,7 @@
 
 ![TypePaste Logo](./logo/typepaste_app/apple-devices/AppIcon.appiconset/icon-mac-128x128.png)
 
-TypePaste is a lightweight macOS menu-bar app that reads the current clipboard text and types it into the active app as if you were typing. It is built for product demos and screen recordings where you want a natural, human-like typing effect without manually retyping content.
+TypePaste is a lightweight macOS menu-bar app that types either the current clipboard text or saved text snippets into the active app as if you were typing. It is built for product demos and screen recordings where you want a natural, human-like typing effect without manually retyping content.
 
 ![macOS](https://img.shields.io/badge/platform-macOS-lightgrey)
 ![Latest Release](https://img.shields.io/github/v/release/trinixlabs/TypePaste?label=Latest%20Release)
@@ -14,19 +14,31 @@ TypePaste is a lightweight macOS menu-bar app that reads the current clipboard t
 
 ![TypePaste Demo](./screenshots/TypePaste-demo.gif)
 
+**Menu Bar**
+
+<img src="./screenshots/TypePaste-menubar.png" alt="TypePaste Menu Bar Dropdown" width="320" />
+
 **Settings**
 
 <img src="./screenshots/TypePaste-settings.png" alt="TypePaste Settings" width="400" />
 
+**Snippet Library**
+
+<img src="./screenshots/TypePaste-snippets.png" alt="TypePaste Snippet Library" width="400" />
+
 
 ## Features
 - Global hotkey to type clipboard contents into any app.
+- Snippet library with up to 9 saved snippets.
+- Dedicated snippet shortcuts based on your primary hotkey modifiers.
 - Human-like typing with configurable delays.
 - Recording mode that increases delays to avoid dropped characters in screen recordings.
-- Menu-bar UI with quick access to settings.
+- Menu-bar UI with quick access to clipboard typing, snippets, and settings.
+- Settings window with `General`, `Snippet Library`, and `About` sections.
 
 **Notes**
 - The default hotkey is `⌘1`. You can change the hotkey in Settings.
+- Snippet shortcuts use `Shift` plus the primary shortcut modifiers and the number row, for example `⇧⌘1` through `⇧⌘9` by default.
 - The app uses "Accessibility" to post keyboard events, so it must be allowed in "Settings" > "Privacy & Security".
 
 ## How-To
