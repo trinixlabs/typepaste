@@ -31,4 +31,11 @@ struct TypePasteSettingsTests {
     func aboutVersionTextOmitsBuildWhenUnavailable() {
         #expect(ContentView.aboutVersionText(shortVersion: "1.0", buildNumber: nil) == "Version 1.0")
     }
+
+    @Test
+    func settingsTabSwitchResizeDoesNotAnimate() {
+        #expect(ContentView.shouldAnimateResize(for: .general) == false)
+        #expect(ContentView.shouldAnimateResize(for: .snippets) == false)
+        #expect(ContentView.shouldAnimateResize(for: .about) == false)
+    }
 }

@@ -332,6 +332,10 @@ struct ContentView: View {
         return "Version \(shortVersion) (\(buildNumber))"
     }
 
+    static func shouldAnimateResize(for tab: TypePasteSettingsTab) -> Bool {
+        false
+    }
+
     private var snippetEditorPane: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Snippet Details")
@@ -555,7 +559,11 @@ struct ContentView: View {
                 """
             )
 
-            window.setFrame(targetFrame, display: true, animate: true)
+            window.setFrame(
+                targetFrame,
+                display: true,
+                animate: Self.shouldAnimateResize(for: tab)
+            )
         }
     }
 }
