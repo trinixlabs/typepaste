@@ -8,6 +8,7 @@ struct TypingSettingsTests {
     func defaultValuesAreUsedWhenSettingsAreMissing() {
         let defaults = UserDefaults.standard
         resetTypingSettings(in: defaults)
+        defer { resetTypingSettings(in: defaults) }
 
         #expect(TypingSettings.initialDelay == 0.35)
         #expect(TypingSettings.delayPerCharacter == 0.04)
@@ -18,6 +19,7 @@ struct TypingSettingsTests {
     func recordingModeRaisesDelaysToMinimumRecordingThresholds() {
         let defaults = UserDefaults.standard
         resetTypingSettings(in: defaults)
+        defer { resetTypingSettings(in: defaults) }
         defaults.set(0.1, forKey: TypingSettings.initialDelayKey)
         defaults.set(0.02, forKey: TypingSettings.perCharacterDelayKey)
         defaults.set(true, forKey: TypingSettings.recordingModeKey)
@@ -30,6 +32,7 @@ struct TypingSettingsTests {
     func explicitValuesAboveRecordingThresholdArePreserved() {
         let defaults = UserDefaults.standard
         resetTypingSettings(in: defaults)
+        defer { resetTypingSettings(in: defaults) }
         defaults.set(1.2, forKey: TypingSettings.initialDelayKey)
         defaults.set(0.08, forKey: TypingSettings.perCharacterDelayKey)
         defaults.set(true, forKey: TypingSettings.recordingModeKey)
