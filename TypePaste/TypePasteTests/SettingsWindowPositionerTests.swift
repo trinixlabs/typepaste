@@ -54,8 +54,21 @@ struct SettingsWindowPositionerTests {
             targetSize: NSSize(width: 840, height: 680)
         )
 
-        #expect(frame.minX == 400)
+        #expect(frame.minX == 460)
         #expect(frame.maxY == 792)
+    }
+
+    @Test
+    func resizedFrameKeepsTopLeftCornerFixedForTallerTab() {
+        let currentFrame = CGRect(x: 460, y: 172, width: 840, height: 620)
+        let frame = SettingsWindowPositioner.resizedFrame(
+            from: currentFrame,
+            visibleFrame: CGRect(x: 100, y: 100, width: 1440, height: 900),
+            targetSize: NSSize(width: 840, height: 680)
+        )
+
+        #expect(frame.minX == currentFrame.minX)
+        #expect(frame.maxY == currentFrame.maxY)
     }
 
     @Test

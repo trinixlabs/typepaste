@@ -90,14 +90,24 @@ enum SettingsWindowPositioner {
     }
 
     static func resizedFrame(from currentFrame: CGRect, visibleFrame: CGRect, targetSize: CGSize) -> CGRect {
-        let targetFrame = CGRect(origin: currentFrame.origin, size: targetSize)
-        let targetOrigin = initialOrigin(
-            frame: targetFrame,
-            visibleFrame: visibleFrame,
-            upwardOffset: upwardOffset,
-            topEdge: currentFrame.maxY
+        let minX = clampedOrigin(
+            for: currentFrame.minX,
+            minBound: visibleFrame.minX,
+            maxBound: visibleFrame.maxX - targetSize.width
         )
-        return CGRect(origin: targetOrigin, size: targetSize)
+        let maxY = min(currentFrame.maxY, visibleFrame.maxY)
+        let minY = clampedOrigin(
+            for: maxY - targetSize.height,
+            minBound: visibleFrame.minY,
+            maxBound: visibleFrame.maxY - targetSize.height
+        )
+
+        return CGRect(
+            x: minX,
+            y: minY,
+            width: targetSize.width,
+            height: targetSize.height
+        )
     }
 
     static func shouldApplyInitialPlacement(to window: NSWindow) -> Bool {

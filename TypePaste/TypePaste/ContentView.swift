@@ -11,6 +11,8 @@ import OSLog
 import SwiftUI
 
 struct ContentView: View {
+    private static let githubRepositoryURL = URL(string: "https://github.com/trinixlabs/TypePaste")!
+
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.trinix.TypePaste",
         category: "Settings"
@@ -39,6 +41,8 @@ struct ContentView: View {
                         generalTab
                     case .snippets:
                         snippetsTab
+                    case .about:
+                        aboutTab
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -210,6 +214,39 @@ struct ContentView: View {
         }
     }
 
+    private var aboutTab: some View {
+        VStack(spacing: 18) {
+            Image(nsImage: NSApplication.shared.applicationIconImage)
+                .resizable()
+                .interpolation(.high)
+                .frame(width: 96, height: 96)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .padding(.top, 18)
+
+            VStack(spacing: 6) {
+                Text("TypePaste")
+                    .font(.title2.weight(.semibold))
+                Text(Self.aboutVersionText(shortVersion: shortVersionNumber, buildNumber: buildNumber))
+                    .foregroundStyle(.secondary)
+            }
+
+            Button {
+                NSWorkspace.shared.open(Self.githubRepositoryURL)
+            } label: {
+                Label("View on GitHub", systemImage: "link")
+            }
+            .buttonStyle(.bordered)
+
+            Text("TypePaste is an open-source menu bar app for typing clipboard text into the active app with natural delays.")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: 340)
+
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     private var snippetListPane: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .center, spacing: 8) {
@@ -277,6 +314,22 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 260, maxWidth: 300, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var shortVersionNumber: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+    }
+
+    private var buildNumber: String? {
+        Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String
+    }
+
+    static func aboutVersionText(shortVersion: String, buildNumber: String?) -> String {
+        guard let buildNumber, !buildNumber.isEmpty else {
+            return "Version \(shortVersion)"
+        }
+
+        return "Version \(shortVersion) (\(buildNumber))"
     }
 
     private var snippetEditorPane: some View {
