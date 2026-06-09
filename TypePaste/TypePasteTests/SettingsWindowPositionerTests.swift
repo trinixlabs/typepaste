@@ -3,6 +3,8 @@ import CoreGraphics
 import Testing
 @testable import TypePaste
 
+@MainActor
+@Suite(.serialized)
 struct SettingsWindowPositionerTests {
     @Test
     func initialOriginCentersHorizontallyAndShiftsUp() {

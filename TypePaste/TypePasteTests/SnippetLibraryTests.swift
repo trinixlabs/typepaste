@@ -9,6 +9,7 @@ struct SnippetLibraryTests {
     func snippetsRoundTripWithStableOrder() throws {
         let defaults = UserDefaults.standard
         resetSnippets(in: defaults)
+        defer { resetSnippets(in: defaults) }
 
         let snippets = [
             Snippet(id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!, title: "Second", text: "beta", order: 1),

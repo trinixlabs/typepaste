@@ -2,6 +2,8 @@ import AppKit
 import Testing
 @testable import TypePaste
 
+@MainActor
+@Suite(.serialized)
 struct ClipboardTyperTests {
     @Test
     func missingClipboardStringBeepsAndSkipsTyping() {
