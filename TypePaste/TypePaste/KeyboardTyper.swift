@@ -14,16 +14,16 @@ final class KeyboardTyper {
     func typeText(_ text: String) {
         // Give the system time to finish handling the hotkey and refocus the target app.
         Thread.sleep(forTimeInterval: TypingSettings.initialDelay)
+        let perCharacterDelay = TypingSettings.delayPerCharacter
         for character in text {
             typeCharacter(character)
-            Thread.sleep(forTimeInterval: TypingSettings.delayPerCharacter)
+            Thread.sleep(forTimeInterval: perCharacterDelay)
         }
     }
 
     private func typeCharacter(_ character: Character) {
         guard let eventSource else { return }
-        let string = String(character)
-        let unicodeScalars = Array(string.utf16)
+        let unicodeScalars = Array(character.utf16)
 
         if let keyDown = CGEvent(keyboardEventSource: eventSource, virtualKey: 0, keyDown: true) {
             keyDown.keyboardSetUnicodeString(stringLength: unicodeScalars.count, unicodeString: unicodeScalars)
