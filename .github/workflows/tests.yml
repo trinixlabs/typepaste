@@ -12,6 +12,10 @@ on:
       - "TypePaste/**/*.xcworkspace/**"
       - "TypePaste/Package.swift"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   xcode-unit-tests:
     runs-on: macos-latest

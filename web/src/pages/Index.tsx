@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
 const GITHUB_REPO = "https://github.com/trinixlabs/typepaste";
-const DOWNLOAD_URL = "https://github.com/trinixlabs/typepaste/releases/tag/v1.0.0";
+const DOWNLOAD_URL = "https://github.com/trinixlabs/typepaste/releases/latest";
 const LOGO_URL = "/apple-touch-icon.png";
 const DEMO_URL = "/TypePaste-demo.gif";
 

@@ -94,18 +94,18 @@ open /Applications/TypePaste.app
 ### Develop
 
 **How To Run**
-1. Open `TypePaste.xcodeproj` in Xcode.
+1. Open `TypePaste/TypePaste.xcodeproj` in Xcode.
 2. Select the `TypePaste` scheme.
 3. Press `Run`.
 4. When prompted, grant Accessibility permissions in `System Settings > Privacy & Security > Accessibility`.
 
 **How To Build**
-1. Open `TypePaste.xcodeproj` in Xcode.
+1. Open `TypePaste/TypePaste.xcodeproj` in Xcode.
 2. Select the `TypePaste` scheme.
 3. Use `Product > Build` or `Product > Archive` to create a build.
 
 **Build App**
-1. Open `TypePaste.xcodeproj` in Xcode.
+1. Open `TypePaste/TypePaste.xcodeproj` in Xcode.
 2. Select the `TypePaste` scheme.
 3. Use `Product > Archive` to create a release build.
 4. In Organizer: `Distribute App` → `Custom` → `Copy App`.

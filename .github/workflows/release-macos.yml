@@ -3,6 +3,11 @@ name: Build macOS DMG + Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to rebuild (e.g. v1.0.0)"
+        required: true
 
 permissions:
   contents: write
@@ -22,7 +27,7 @@ jobs:
         id: release_meta
         shell: bash
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
           VERSION="${TAG#v}"  # supports v1.2.3 and 1.2.3
           echo "TAG=$TAG" >> "$GITHUB_ENV"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -98,6 +103,14 @@ jobs:
 
           echo "DMG_PATH=dist/$DMG_NAME" >> "$GITHUB_ENV"
 
+      - name: Generate SHA256 checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          shasum -a 256 TypePaste-*.zip TypePaste-*.dmg > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
       - name: Create GitHub Release + upload assets
         uses: softprops/action-gh-release@v2
         with:
@@ -105,6 +118,7 @@ jobs:
           files: |
             ${{ env.ZIP_PATH }}
             ${{ env.DMG_PATH }}
+            dist/SHA256SUMS.txt
 
   update-cask:
     runs-on: ubuntu-latest

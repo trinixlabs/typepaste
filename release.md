@@ -4,7 +4,7 @@ This repository currently releases from GitHub Releases, not from git tag pushes
 
 ## Trigger
 
-The release workflow is defined in [.github/workflows/release-macos.yml](/Users/tim.haselaars/Sites/mac-apps/TypePaste/TypePaste/.github/workflows/release-macos.yml).
+The release workflow is defined in [.github/workflows/release-macos.yml](.github/workflows/release-macos.yml).
 
 It runs when a GitHub Release is published:
 
@@ -223,6 +223,6 @@ The Brew path depends on an external repository and token:
 
 ## PR Test Workflow
 
-This repository now also has a pull request workflow in [.github/workflows/tests.yml](/Users/tim.haselaars/Sites/mac-apps/TypePaste/TypePaste/.github/workflows/tests.yml).
+This repository now also has a pull request workflow in [.github/workflows/tests.yml](.github/workflows/tests.yml).
 
 It runs the `TypePasteTests` unit test target on every PR using `xcodebuild test`.
