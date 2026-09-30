@@ -514,7 +514,9 @@ struct ContentView: View {
         if let text {
             snippets[index].text = text
         }
-        persistSnippets()
+        // Title/text edits can't change ordering, so skip the normalize+rewrite
+        // in persistSnippets() — save() encodes straight to defaults per keystroke.
+        SnippetLibrarySettings.save(snippets)
     }
 
     private func persistSnippets() {

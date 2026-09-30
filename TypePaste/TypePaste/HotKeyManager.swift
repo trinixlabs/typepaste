@@ -15,21 +15,24 @@ final class HotKeyManager {
     private var handlerRef: EventHandlerRef?
 
     init(registrations: [HotKeyRegistration]) {
+        installEventHandler()
         registerHotKeys(registrations)
     }
 
     deinit {
-        unregisterHotKey()
+        unregisterHotKeys()
+        if let handlerRef {
+            RemoveEventHandler(handlerRef)
+            self.handlerRef = nil
+        }
     }
 
     func update(registrations: [HotKeyRegistration]) {
-        unregisterHotKey()
+        unregisterHotKeys()
         registerHotKeys(registrations)
     }
 
-    private func registerHotKeys(_ registrations: [HotKeyRegistration]) {
-        unregisterHotKey()
-
+    private func installEventHandler() {
         var eventType = EventTypeSpec(
             eventClass: OSType(kEventClassKeyboard),
             eventKind: UInt32(kEventHotKeyPressed)
@@ -43,7 +46,9 @@ final class HotKeyManager {
             UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
             &handlerRef
         )
+    }
 
+    private func registerHotKeys(_ registrations: [HotKeyRegistration]) {
         for registration in registrations {
             var hotKeyRef: EventHotKeyRef?
             let hotKeyID = EventHotKeyID(signature: "TPST".fourCharCode, id: registration.id)
@@ -61,16 +66,11 @@ final class HotKeyManager {
         }
     }
 
-    private func unregisterHotKey() {
+    private func unregisterHotKeys() {
         for hotKeyRef in hotKeyRefs.values {
             UnregisterEventHotKey(hotKeyRef)
         }
         hotKeyRefs.removeAll()
-
-        if let handlerRef {
-            RemoveEventHandler(handlerRef)
-            self.handlerRef = nil
-        }
     }
 
     private func handleHotKeyPressed(id: UInt32) {
