@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import TypePaste
 
+@MainActor
 struct TypePasteActionPerformerTests {
     @Test
     func clipboardActionUsesClipboardTyping() {
@@ -43,6 +44,7 @@ struct TypePasteActionPerformerTests {
     }
 }
 
+@MainActor
 private final class TestTypingActionHandler: TypingActionHandling {
     private(set) var didTypeClipboard = false
     private(set) var typedTexts: [String] = []

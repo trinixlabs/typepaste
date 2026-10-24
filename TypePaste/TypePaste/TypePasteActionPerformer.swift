@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 protocol TypingActionHandling {
     func typeClipboardContents()
     func typeText(_ text: String)
@@ -39,6 +40,7 @@ enum HotKeyAction: Equatable {
     }
 }
 
+@MainActor
 struct TypePasteActionPerformer {
     let typingActionHandler: TypingActionHandling
 

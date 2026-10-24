@@ -11,37 +11,39 @@ protocol PasteboardReading {
     func string(forType type: NSPasteboard.PasteboardType) -> String?
 }
 
+@MainActor
 protocol KeyboardTyping {
-    func typeText(_ text: String)
+    var hasPressedModifiers: Bool { get }
+    func typeCharacter(_ character: Character)
 }
 
 protocol Beeping {
     func beep()
 }
 
-protocol WorkQueueing {
-    func async(_ operation: @escaping @Sendable () -> Void)
-}
-
+@MainActor
 final class ClipboardTyper {
     private let pasteboard: PasteboardReading
-    private let keyboardTyper: KeyboardTyping
+    private let sessions: TypingSessionController
     private let beeper: Beeping
-    private let workQueue: WorkQueueing
+
+    convenience init() {
+        self.init(keyboardTyper: KeyboardTyper())
+    }
 
     init(
         pasteboard: PasteboardReading = NSPasteboard.general,
-        keyboardTyper: KeyboardTyping = KeyboardTyper(),
-        beeper: Beeping = NSSoundBeeper(),
-        workQueue: WorkQueueing = GlobalUserInitiatedQueue()
+        keyboardTyper: KeyboardTyping,
+        beeper: Beeping = NSSoundBeeper()
     ) {
         self.pasteboard = pasteboard
-        self.keyboardTyper = keyboardTyper
+        self.sessions = TypingSessionController(keyboardTyper: keyboardTyper)
         self.beeper = beeper
-        self.workQueue = workQueue
     }
 
     func typeClipboardContents() {
+        if sessions.handleRepeatedHotkey(TypingSettings.repeatedHotkeyAction) { return }
+
         guard let rawText = pasteboard.string(forType: .string) else {
             beeper.beep()
             return
@@ -57,9 +59,11 @@ final class ClipboardTyper {
             return
         }
 
-        workQueue.async { [keyboardTyper] in
-            keyboardTyper.typeText(text)
-        }
+        sessions.start(
+            text,
+            initialDelay: TypingSettings.initialDelay,
+            perCharacterDelay: TypingSettings.delayPerCharacter
+        )
     }
 }
 
@@ -70,11 +74,5 @@ extension NSPasteboard: PasteboardReading {}
 struct NSSoundBeeper: Beeping {
     func beep() {
         NSSound.beep()
-    }
-}
-
-struct GlobalUserInitiatedQueue: WorkQueueing {
-    func async(_ operation: @escaping @Sendable () -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async(execute: operation)
     }
 }

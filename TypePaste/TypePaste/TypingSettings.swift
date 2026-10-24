@@ -7,7 +7,31 @@
 
 import Foundation
 
+enum RepeatedHotkeyAction: String, CaseIterable {
+    case stop
+    case pauseResume
+    case restart
+
+    var title: String {
+        switch self {
+        case .stop: return "Stop"
+        case .pauseResume: return "Pause / Resume"
+        case .restart: return "Restart"
+        }
+    }
+}
+
 enum TypingSettings {
+    static let repeatedHotkeyActionKey = "typing.repeatedHotkeyAction"
+
+    static var repeatedHotkeyAction: RepeatedHotkeyAction {
+        repeatedHotkeyAction(in: .standard)
+    }
+
+    static func repeatedHotkeyAction(in defaults: UserDefaults) -> RepeatedHotkeyAction {
+        defaults.string(forKey: repeatedHotkeyActionKey).flatMap(RepeatedHotkeyAction.init(rawValue:)) ?? .stop
+    }
+
     static let initialDelayKey = "typing.initialDelay"
     static let perCharacterDelayKey = "typing.perCharacterDelay"
     static let recordingModeKey = "typing.recordingMode"
