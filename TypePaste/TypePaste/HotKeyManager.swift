@@ -13,8 +13,11 @@ final class HotKeyManager {
 
     private var hotKeyRefs: [UInt32: EventHotKeyRef] = [:]
     private var handlerRef: EventHandlerRef?
+    private var registrations: [HotKeyRegistration]
+    private var pressState = HotKeyPressState()
 
     init(registrations: [HotKeyRegistration]) {
+        self.registrations = registrations
         registerHotKeys(registrations)
     }
 
@@ -23,6 +26,8 @@ final class HotKeyManager {
     }
 
     func update(registrations: [HotKeyRegistration]) {
+        guard registrations != self.registrations else { return }
+        self.registrations = registrations
         unregisterHotKey()
         registerHotKeys(registrations)
     }
@@ -30,16 +35,16 @@ final class HotKeyManager {
     private func registerHotKeys(_ registrations: [HotKeyRegistration]) {
         unregisterHotKey()
 
-        var eventType = EventTypeSpec(
-            eventClass: OSType(kEventClassKeyboard),
-            eventKind: UInt32(kEventHotKeyPressed)
-        )
+        var eventTypes = [
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased)),
+        ]
 
         InstallEventHandler(
             GetEventDispatcherTarget(),
             HotKeyManager.hotKeyHandler,
-            1,
-            &eventType,
+            eventTypes.count,
+            &eventTypes,
             UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque()),
             &handlerRef
         )
@@ -66,6 +71,7 @@ final class HotKeyManager {
             UnregisterEventHotKey(hotKeyRef)
         }
         hotKeyRefs.removeAll()
+        pressState = HotKeyPressState()
 
         if let handlerRef {
             RemoveEventHandler(handlerRef)
@@ -73,8 +79,10 @@ final class HotKeyManager {
         }
     }
 
-    private func handleHotKeyPressed(id: UInt32) {
-        onHotKeyPressed?(id)
+    private func handleHotKeyEvent(id: UInt32, isPressed: Bool) {
+        if pressState.handle(id: id, isPressed: isPressed) {
+            onHotKeyPressed?(id)
+        }
     }
 
     private static let hotKeyHandler: EventHandlerUPP = { _, eventRef, userData in
@@ -91,11 +99,23 @@ final class HotKeyManager {
             nil,
             &hotKeyID
         )
-        guard status == noErr else { return noErr }
+        guard status == noErr, hotKeyID.signature == "TPST".fourCharCode else { return noErr }
 
         let manager = Unmanaged<HotKeyManager>.fromOpaque(userData).takeUnretainedValue()
-        manager.handleHotKeyPressed(id: hotKeyID.id)
+        manager.handleHotKeyEvent(id: hotKeyID.id, isPressed: GetEventKind(eventRef) == UInt32(kEventHotKeyPressed))
         return noErr
+    }
+}
+
+struct HotKeyPressState {
+    private var pressedIDs: Set<UInt32> = []
+
+    mutating func handle(id: UInt32, isPressed: Bool) -> Bool {
+        if isPressed {
+            return pressedIDs.insert(id).inserted
+        }
+        pressedIDs.remove(id)
+        return false
     }
 }
 

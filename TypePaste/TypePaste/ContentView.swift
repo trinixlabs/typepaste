@@ -19,6 +19,7 @@ struct ContentView: View {
         category: "Settings"
     )
 
+    @AppStorage(TypingSettings.repeatedHotkeyActionKey) private var repeatedHotkeyAction: RepeatedHotkeyAction = .stop
     @AppStorage(TypingSettings.initialDelayKey) private var initialDelay: Double = 0.35
     @AppStorage(TypingSettings.perCharacterDelayKey) private var perCharacterDelay: Double = 0.04
     @AppStorage(TypingSettings.recordingModeKey) private var recordingModeEnabled: Bool = false
@@ -131,6 +132,24 @@ struct ContentView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 sectionTitle("Typing")
+
+                alignedRow("Repeated Hotkey Action:") {
+                    Picker("Repeated Hotkey Action", selection: $repeatedHotkeyAction) {
+                        ForEach(RepeatedHotkeyAction.allCases, id: \.self) { action in
+                            Text(action.title).tag(action)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .frame(width: 180, alignment: .leading)
+                }
+
+                if repeatedHotkeyAction == .restart {
+                    Text("Restart types the captured text from the beginning. It does not erase text already typed.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
 
                 settingsToggleRow(
                     "Recording Mode:",

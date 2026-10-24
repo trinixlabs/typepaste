@@ -41,6 +41,40 @@ struct TypingSettingsTests {
         #expect(TypingSettings.delayPerCharacter == 0.08)
     }
 
+    @Test
+    func repeatedHotkeyActionDefaultsToStopWithoutChangingExistingSettings() throws {
+        let name = "TypePasteTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: name))
+        defer { defaults.removePersistentDomain(forName: name) }
+        defaults.set(0.12, forKey: TypingSettings.perCharacterDelayKey)
+        defaults.set(true, forKey: TypingSettings.recordingModeKey)
+
+        #expect(TypingSettings.repeatedHotkeyAction(in: defaults) == .stop)
+        #expect(defaults.double(forKey: TypingSettings.perCharacterDelayKey) == 0.12)
+        #expect(defaults.bool(forKey: TypingSettings.recordingModeKey))
+    }
+
+    @Test(arguments: RepeatedHotkeyAction.allCases)
+    func repeatedHotkeyActionPersistsAcrossDefaultsInstances(_ action: RepeatedHotkeyAction) throws {
+        let name = "TypePasteTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: name))
+        defer { defaults.removePersistentDomain(forName: name) }
+        defaults.set(action.rawValue, forKey: TypingSettings.repeatedHotkeyActionKey)
+        #expect(defaults.synchronize())
+        let restoredDefaults = try #require(UserDefaults(suiteName: name))
+
+        #expect(TypingSettings.repeatedHotkeyAction(in: restoredDefaults) == action)
+    }
+
+    @Test
+    func unknownRepeatedHotkeyActionUsesStop() throws {
+        let name = "TypePasteTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: name))
+        defer { defaults.removePersistentDomain(forName: name) }
+        defaults.set("unknown", forKey: TypingSettings.repeatedHotkeyActionKey)
+        #expect(TypingSettings.repeatedHotkeyAction(in: defaults) == .stop)
+    }
+
     private func resetTypingSettings(in defaults: UserDefaults) {
         defaults.removeObject(forKey: TypingSettings.initialDelayKey)
         defaults.removeObject(forKey: TypingSettings.perCharacterDelayKey)
